@@ -6,7 +6,7 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/07 21:06:44 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/07 22:01:25 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/08 23:24:43 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@
 # define OUTFILE 1
 
 char	*path_join (char *path, char *bin);
-int		str_ncmp (char *str1, char *str2, int n);
-int		str_ichr (char *str, char c);
+int		ncompare (char *str1, char *str2, int n);
+int		find_ch (char *str, char c);
 char	*str_ndup (char *str, unsigned int n);
 char	**str_split (char *str, char sep);
 

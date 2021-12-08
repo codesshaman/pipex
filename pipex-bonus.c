@@ -6,7 +6,7 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/07 22:03:56 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/07 22:51:18 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/08 23:23:56 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	openfile (char *filename, int mode)
 		if (access(filename, F_OK))
 		{
 			write(STDERR, "pipex: ", 7);
-			write(STDERR, filename, str_ichr(filename, 0));
+			write(STDERR, filename, find_ch(filename, 0));
 			write(STDERR, ": No such file or directory\n", 28);
 			return (STDIN);
 		}
@@ -38,20 +38,20 @@ char	*getPath (char *cmd, char **env)
 	int		i;
 
 	i = 0;
-	while (env[i] && str_ncmp(env[i], "PATH=", 5))
+	while (env[i] && ncompare(env[i], "PATH=", 5))
 		i++;
 	if (!env[i])
 		return (cmd);
 	path = env[i] + 5;
-	while (path && str_ichr(path, ':') > -1)
+	while (path && find_ch(path, ':') > -1)
 	{
-		dir = str_ndup(path, str_ichr(path, ':'));
+		dir = str_ndup(path, find_ch(path, ':'));
 		bin = path_join(dir, cmd);
 		free(dir);
 		if (access(bin, F_OK) == 0)
 			return (bin);
 		free(bin);
-		path += str_ichr(path, ':') + 1;
+		path += find_ch(path, ':') + 1;
 	}
 	return (cmd);
 }
@@ -62,13 +62,13 @@ void	exec (char *cmd, char **env)
 	char	*path;
 
 	args = str_split(cmd, ' ');
-	if (str_ichr(args[0], '/') > -1)
+	if (find_ch(args[0], '/') > -1)
 		path = args[0];
 	else
 		path = getPath(args[0], env);
 	execve(path, args, env);
 	write(STDERR, "pipex: ", 7);
-	write(STDERR, cmd, str_ichr(cmd, 0));
+	write(STDERR, cmd, find_ch(cmd, 0));
 	write(STDERR, ": command not found\n", 20);
 	exit(127);
 }

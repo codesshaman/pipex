@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   pipex-utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 21:19:17 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/07 22:01:39 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/08 23:26:49 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char	*path_join (char *path, char *bin)
 	int		i;
 	int		j;
 
-	joined = malloc(sizeof(char) * (str_ichr(path, 0) + str_ichr(bin, 0) + 2));
+	joined = malloc(sizeof(char) * (find_ch(path, 0) + find_ch(bin, 0) + 2));
 	i = 0;
 	j = 0;
 	while (path[j])
@@ -31,9 +31,11 @@ char	*path_join (char *path, char *bin)
 	return (joined);
 }
 
-int	str_ncmp (char *str1, char *str2, int n)
+// Если строки до n одинаковы, возвращаем 0
+
+int	ncompare(char *str1, char *str2, int n)
 {
-	while (--n > 0 && *str1 && *str2 && *str1 == *str2)
+	while (*str1 && *str2 && *str1 == *str2 && --n > 0)
 	{
 		str1++;
 		str2++;
@@ -41,14 +43,16 @@ int	str_ncmp (char *str1, char *str2, int n)
 	return (*str2 - *str1);
 }
 
-int	str_ichr (char *str, char c)
+// Подсчитываем длинну строки до ch
+
+int	find_ch(char *str, char ch)
 {
 	int	i;
 
 	i = 0;
-	while (str[i] && str[i] != c)
+	while (str[i] && str[i] != ch)
 		i++;
-	if (str[i] == c)
+	if (str[i] == ch)
 		return (i);
 	return (-1);
 }
