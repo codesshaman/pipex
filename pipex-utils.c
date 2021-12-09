@@ -6,11 +6,37 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 21:19:17 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/08 23:26:49 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/08 23:29:03 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+// Подсчитываем длинну строки до ch
+
+int	find_ch(char *str, char ch)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] && str[i] != ch)
+		i++;
+	if (str[i] == ch)
+		return (i);
+	return (-1);
+}
+
+// Если строки до n одинаковы, возвращаем 0
+
+int	ncompare(char *str1, char *str2, int n)
+{
+	while (*str1 && *str2 && *str1 == *str2 && --n > 0)
+	{
+		str1++;
+		str2++;
+	}
+	return (*str2 - *str1);
+}
 
 char	*path_join (char *path, char *bin)
 {
@@ -31,31 +57,7 @@ char	*path_join (char *path, char *bin)
 	return (joined);
 }
 
-// Если строки до n одинаковы, возвращаем 0
 
-int	ncompare(char *str1, char *str2, int n)
-{
-	while (*str1 && *str2 && *str1 == *str2 && --n > 0)
-	{
-		str1++;
-		str2++;
-	}
-	return (*str2 - *str1);
-}
-
-// Подсчитываем длинну строки до ch
-
-int	find_ch(char *str, char ch)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] && str[i] != ch)
-		i++;
-	if (str[i] == ch)
-		return (i);
-	return (-1);
-}
 
 char	*str_ndup (char *str, unsigned int n)
 {

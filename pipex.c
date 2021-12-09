@@ -6,7 +6,7 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 19:14:30 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/08 23:23:39 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/09 16:48:03 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,12 +64,12 @@ char	*full_command_path(char *cmd, char **env)
 // Обрабатываем вторую команду,
 // Отделяя флаги и выполняя поиск
 
-void	second_command_processing(char *envir, char **env)
+void	second_command_processing(char *command, char **env)
 {
 	char	**args;
 	char	*path;
 
-	args = str_split(envir, ' ');
+	args = str_split(command, ' ');
 	if (find_ch(args[0], '/') > -1)
 		path = args[0];
 	else
@@ -79,7 +79,7 @@ void	second_command_processing(char *envir, char **env)
 	exit(127);
 }
 
-// Обрабатываем первую команду
+// Клонируем процесс форком и обрабатываем первую команду:
 
 void	first_command_processing(char *command, char **env, int infile_fd)
 {
