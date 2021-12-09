@@ -6,22 +6,22 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 19:14:30 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/09 16:48:03 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/09 18:46:05 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// Этап 1. Читаем входной и выходной файлы
+// Читаем входной или выходной файлы
 
-int	openfile (char *file, int mode)
+int	openfile(char *file, int mode)
 {
-	if (mode == INFILE)
+	if (mode == 0)
 	{
 		if (access(file, F_OK))
 		{
-			write(STDERR, "File not found\n", 15);
-			return (STDIN);
+			write(2, "File not found\n", 15);
+			return (0);
 		}
 		return (open(file, O_RDONLY));
 	}
@@ -33,7 +33,7 @@ int	openfile (char *file, int mode)
 // Находим полный путь к команде в переменных окружения
 // Пока мы не нашли нужный путь в env, итерируемся
 // Если пути нет, возвращаем команду
-// Если путь найден, 
+// Если путь найден, собираем полный путь с командой
 
 char	*full_command_path(char *cmd, char **env)
 {
@@ -48,15 +48,15 @@ char	*full_command_path(char *cmd, char **env)
 	if (!env[i])
 		return (cmd);
 	path = env[i] + 5;
-	while (path && find_ch(path, ':') > -1)
+	while (path && len_ch(path, ':') > -1)
 	{
-		dir = str_ndup(path, find_ch(path, ':'));
-		full = path_join(dir, cmd);
+		dir = str_ndup(path, len_ch(path, ':'));
+		full = make_command(dir, cmd);
 		free(dir);
 		if (access(full, F_OK) == 0)
 			return (full);
 		free(full);
-		path += find_ch(path, ':') + 1;
+		path += len_ch(path, ':') + 1;
 	}
 	return (cmd);
 }
@@ -70,12 +70,12 @@ void	second_command_processing(char *command, char **env)
 	char	*path;
 
 	args = str_split(command, ' ');
-	if (find_ch(args[0], '/') > -1)
+	if (len_ch(args[0], '/') > -1)
 		path = args[0];
 	else
 		path = full_command_path(args[0], env);
 	execve(path, args, env);
-	write(STDERR, "Сommand not found\n", 19);
+	write(2, "Сommand not found\n", 19);
 	exit(127);
 }
 
@@ -91,14 +91,14 @@ void	first_command_processing(char *command, char **env, int infile_fd)
 	if (pid)
 	{
 		close(pipefd[1]);
-		dup2(pipefd[0], STDIN);
+		dup2(pipefd[0], 0);
 		waitpid(pid, NULL, 0);
 	}
 	else
 	{
 		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT);
-		if (infile_fd == STDIN)
+		dup2(pipefd[1], 1);
+		if (infile_fd == 0)
 			exit(1);
 		else
 			second_command_processing(command, env);
@@ -110,21 +110,21 @@ void	first_command_processing(char *command, char **env, int infile_fd)
 // 3. клонируем процесс и выполняем 1 команду
 // 4. выполняем вторую команду и схлопываем процесс
 
-int	main (int ac, char **av, char **env)
+int	main(int ac, char **av, char **env)
 {
 	int	infile_fd;
 	int	outfile_fd;
 
 	if (ac == 5)
 	{
-		infile_fd = openfile(av[1], INFILE);
-		outfile_fd = openfile(av[4], OUTFILE);
-		dup2(infile_fd, STDIN);
-		dup2(outfile_fd, STDOUT);
+		infile_fd = openfile(av[1], 0);
+		outfile_fd = openfile(av[4], 1);
+		dup2(infile_fd, 0);
+		dup2(outfile_fd, 1);
 		first_command_processing(av[2], env, infile_fd);
 		second_command_processing(av[3], env);
 	}
 	else
-		write(STDERR, "Нужно 4 аргумента\n", 29);
+		write(2, "Нужно 4 аргумента\n", 29);
 	return (1);
 }

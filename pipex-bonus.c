@@ -6,22 +6,20 @@
 /*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/07 22:03:56 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/08 23:23:56 by jleslee          ###   ########.fr       */
+/*   Updated: 2021/12/09 18:46:41 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-int	openfile (char *filename, int mode)
+int	openfile(char *filename, int mode)
 {
-	if (mode == INFILE)
+	if (mode == 0)
 	{
 		if (access(filename, F_OK))
 		{
-			write(STDERR, "pipex: ", 7);
-			write(STDERR, filename, find_ch(filename, 0));
-			write(STDERR, ": No such file or directory\n", 28);
-			return (STDIN);
+			write(2, "File not found\n", 15);
+			return (0);
 		}
 		return (open(filename, O_RDONLY));
 	}
@@ -30,7 +28,7 @@ int	openfile (char *filename, int mode)
 				S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH));
 }
 
-char	*getPath (char *cmd, char **env)
+char	*full_command_path(char *cmd, char **env)
 {
 	char	*path;
 	char	*dir;
@@ -43,37 +41,35 @@ char	*getPath (char *cmd, char **env)
 	if (!env[i])
 		return (cmd);
 	path = env[i] + 5;
-	while (path && find_ch(path, ':') > -1)
+	while (path && len_ch(path, ':') > -1)
 	{
-		dir = str_ndup(path, find_ch(path, ':'));
-		bin = path_join(dir, cmd);
+		dir = str_ndup(path, len_ch(path, ':'));
+		bin = make_command(dir, cmd);
 		free(dir);
 		if (access(bin, F_OK) == 0)
 			return (bin);
 		free(bin);
-		path += find_ch(path, ':') + 1;
+		path += len_ch(path, ':') + 1;
 	}
 	return (cmd);
 }
 
-void	exec (char *cmd, char **env)
+void	second_command_processing(char *cmd, char **env)
 {
 	char	**args;
 	char	*path;
 
 	args = str_split(cmd, ' ');
-	if (find_ch(args[0], '/') > -1)
+	if (len_ch(args[0], '/') > -1)
 		path = args[0];
 	else
-		path = getPath(args[0], env);
+		path = full_command_path(args[0], env);
 	execve(path, args, env);
-	write(STDERR, "pipex: ", 7);
-	write(STDERR, cmd, find_ch(cmd, 0));
-	write(STDERR, ": command not found\n", 20);
+	write(2, "Сommand not found\n", 19);
 	exit(127);
 }
 
-void	redir (char *cmd, char **env, int fdin)
+void	first_command_processing(char *cmd, char **env, int fdin)
 {
 	pid_t	pid;
 	int		pipefd[2];
@@ -83,21 +79,21 @@ void	redir (char *cmd, char **env, int fdin)
 	if (pid)
 	{
 		close(pipefd[1]);
-		dup2(pipefd[0], STDIN);
+		dup2(pipefd[0], 0);
 		waitpid(pid, NULL, 0);
 	}
 	else
 	{
 		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT);
-		if (fdin == STDIN)
+		dup2(pipefd[1], 1);
+		if (fdin == 0)
 			exit(1);
 		else
-			exec(cmd, env);
+			second_command_processing(cmd, env);
 	}
 }
 
-int	main (int ac, char **av, char **env)
+int	main(int ac, char **av, char **env)
 {
 	int	fdin;
 	int	fdout;
@@ -106,16 +102,16 @@ int	main (int ac, char **av, char **env)
 	i = 3;
 	if (ac >= 5)
 	{
-		fdin = openfile(av[1], INFILE);
-		fdout = openfile(av[ac - 1], OUTFILE);
-		dup2(fdin, STDIN);
-		dup2(fdout, STDOUT);
-		redir(av[2], env, fdin);
+		fdin = openfile(av[1], 0);
+		fdout = openfile(av[ac - 1], 1);
+		dup2(fdin, 0);
+		dup2(fdout, 1);
+		first_command_processing(av[2], env, fdin);
 		while (i < ac - 2)
-			redir(av[i++], env, 1);
-		exec(av[i], env);
+			first_command_processing(av[i++], env, 1);
+		second_command_processing(av[i], env);
 	}
 	else
-		write(STDERR, "Invalid number of arguments.\n", 29);
+		write(2, "Invalid number of arguments.\n", 29);
 	return (1);
 }
