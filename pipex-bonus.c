@@ -3,14 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   pipex-bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jleslee <jleslee@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/07 22:03:56 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/09 18:46:41 by jleslee          ###   ########.fr       */
+/*   Updated: 2022/02/06 23:57:22 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+// Открываем файл на чтение и возвращаем
+// Файловый дескриптор
 
 int	openfile(char *filename, int mode)
 {
@@ -24,9 +27,10 @@ int	openfile(char *filename, int mode)
 		return (open(filename, O_RDONLY));
 	}
 	else
-		return (open(filename, O_CREAT | O_WRONLY | O_TRUNC,
-				S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH));
+		return (open(filename, O_CREAT | O_WRONLY | O_TRUNC));
 }
+
+// Парсим путь к введённой команде из переменных окружения
 
 char	*full_command_path(char *cmd, char **env)
 {
@@ -54,6 +58,8 @@ char	*full_command_path(char *cmd, char **env)
 	return (cmd);
 }
 
+// Выполняем команду по распарсенному пути
+
 void	second_command_processing(char *cmd, char **env)
 {
 	char	**args;
@@ -68,6 +74,9 @@ void	second_command_processing(char *cmd, char **env)
 	write(2, "Сommand not found\n", 19);
 	exit(127);
 }
+
+// Создаём дочерний процесс под каждую команду
+// И выполняем в нём команду
 
 void	first_command_processing(char *cmd, char **env, int fdin)
 {

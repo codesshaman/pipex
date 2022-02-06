@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jleslee <jleslee@student.42.fr>            +#+  +:+       +#+        */
+/*   By: jleslee <jleslee@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 19:14:30 by jleslee           #+#    #+#             */
-/*   Updated: 2021/12/09 18:46:05 by jleslee          ###   ########.fr       */
+/*   Updated: 2022/02/06 23:58:02 by jleslee          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,7 @@ int	openfile(char *file, int mode)
 		return (open(file, O_RDONLY));
 	}
 	else
-		return (open(file, O_CREAT | O_WRONLY | O_TRUNC,
-				S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH));
+		return (open(file, O_CREAT | O_WRONLY | O_TRUNC));
 }
 
 // Находим полный путь к команде в переменных окружения
